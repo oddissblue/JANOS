@@ -155,7 +155,7 @@ pygments==2.21.0
     # via rich
 python-dotenv==1.2.4
     # via janos
-redis==7.4.1
+redis==8.1.0
     # via limits
 requests==2.34.2
     # via
