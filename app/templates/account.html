@@ -1,50 +1,12 @@
-{% extends "layout.html" %}
+{% extends 'layout.html' %}
 {% block content %}
-<!--============================================= Form - Account Info ================================================-->
-<section class="formpage_section">
-    <div class="container rounded bg-white mt-5 mb-5">
-        <div class="row">
-            <div class="col-md-6 border-right">
-                <div class="p-3 py-5">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h4 class="text-right">Account Information</h4>
-                    </div>
-                    <div class="row mt-2">
-                        <div class="col-md-12">
-                            <label class="labels">Username</label>
-                            <h5>{{ current_user.username }}</h5>
-                        </div>
-                    </div> 
-                    <div class="row mt-3">
-                        <div class="col-md-12">
-                            <label class="labels">Email</label>
-                            <h5> {{ current_user.email }} </h5>
-                        </div>
-                    </div>
-                    <div class="mt-5 text-center">
-                        <a href="{{ url_for('update_account') }}"><button class="btn btn-primary profile-button" type="button"> Update </button></a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="p-3 py-5">
-                    <div class="d-flex justify-content-between align-items-center experience">
-                        <h4> Scanner History </h4>
-                    </div>
-                    <br>
-                    <table class="table">
-                        <tr><th>Result</th><th>Confidence</th><th>Date & Time</th></tr>
-                        {% for scans in history_scans %}
-                        <tr>
-                            <td><span style="color: #00bfff;">{{scans.prediction}}</span></td>
-                            <td><span style="color: #00bfff;">{{scans.probability}}</span></td>
-                            <td>{{scans.date_scanned}}</td>
-                        </tr>
-                        {% endfor %}
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
+<section class="page-heading"><p class="eyebrow">Your account</p><h1>{{ current_user.username }}</h1><p>{{ current_user.email }}</p><a href="{{ url_for('main.update_account') }}">Edit account details</a></section>
+<section class="card"><h2>Scan history</h2>
+{% if history.items %}
+<div class="table-scroll"><table><caption class="visually-hidden">Your saved scan results</caption><thead><tr><th scope="col">Result</th><th scope="col">Model score</th><th scope="col">Date (UTC)</th><th scope="col">Details</th></tr></thead><tbody>
+{% for scan in history.items %}<tr><td>{{ scan.prediction }}</td><td>{{ '%.2f'|format(scan.probability) }}%</td><td>{{ scan.date_scanned.strftime('%Y-%m-%d %H:%M') }}</td><td><a href="{{ url_for('main.scan_result', scan_id=scan.id) }}">View scan {{ scan.id }}</a></td></tr>{% endfor %}
+</tbody></table></div>
+<nav class="actions section" aria-label="Scan history pages">{% if history.has_prev %}<a href="{{ url_for('main.account', page=history.prev_num) }}">Previous</a>{% endif %}<span>Page {{ history.page }} of {{ history.pages }}</span>{% if history.has_next %}<a href="{{ url_for('main.account', page=history.next_num) }}">Next</a>{% endif %}</nav>
+{% else %}<p>You have no saved scans yet.</p><a class="button" href="{{ url_for('main.scanner') }}">Start a scan</a>{% endif %}
 </section>
-{% endblock content %}
+{% endblock %}

@@ -1,75 +1,12 @@
-{% extends "layout.html" %}
+{% extends 'layout.html' %}
 {% block content %}
-<!--============================================ Scanner section ===================================================-->
-<section class="formpage_section">
-   <div class="scanner_container">
-      <div class="row justify-content-center">
-         <h1 style="color: #00bfff;"> Pneumonia Detector </h1>
-      </div>
-      <form class="mt-5" action="{{ url_for('scanner')}}" method="POST" enctype="multipart/form-data">
-         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-         <div class="row justify-content-center">
-            <div class="col-auto">
-               <input type="file" name="imageFile" class="form-control" required>
-            </div>
-            <div class="col-auto">
-               <button type="submit" class="btn btn-success">Scan</button>
-            </div>
-         </div>
-      </form>
-   </div>
+<section class="page-heading"><p class="eyebrow">Research scanner</p><h1>Classify a chest X-ray</h1><p>Upload one PNG or JPEG image, up to 10 MiB.</p></section>
+<section class="card narrow">
+  <form method="post" action="{{ url_for('main.scanner') }}" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="field"><label for="imageFile">Chest X-ray image</label><input type="file" id="imageFile" name="imageFile" accept="image/png,image/jpeg" required aria-describedby="upload-help"><p id="upload-help" class="muted">Images are stored privately under your account. Avoid uploading identifiable patient data.</p></div>
+    <button class="button" type="submit">Run scan</button>
+  </form>
+  <p class="muted section">Processing may take a moment while the model loads. Results are for research and education.</p>
 </section>
-<!--============================================== Service section ====================================================-->
-<section class="service_section layout_padding">
-   <div class="container-fluid">
-     <div class="row">
-       <div class="col-md-6 offset-md-2">
-         <h2 class="custom_heading"> How to use <span> JANOS </span> ? </h2>
-         <div class="container layout_padding2">
-           <div class="row">
-             <div class="col-md-4">
-               <div class="img_box">
-                 <img src="{{ url_for('static',filename='images/upload_icon.svg') }}" alt="">
-               </div>
-               <div class="detail_box">
-                 <h6> Upload Image </h6>
-                 <p>
-                   You can upload You can upload You can upload You can upload You can upload You can upload
-                   You can upload You can upload You can upload You can upload You can upload You can upload
-                 </p>
-               </div>
-             </div>
-             <div class="col-md-4">
-               <div class="img_box">
-                 <img src="{{ url_for('static',filename='images/search_icon.png') }}" alt="">
-               </div>
-               <div class="detail_box">
-                 <h6> Scan Image </h6>
-                 <p>
-                   You can scan You can scan You can scan You can scan You can scan You can scan You can scan
-                   You can scan You can scan You can scan You can scan You can scan You can scan You can scan
-                 </p>
-               </div>
-             </div>
-             <div class="col-md-4">
-               <div class="img_box">
-                 <img src="{{ url_for('static',filename='images/save_icon.svg') }}" alt="">
-               </div>
-               <div class="detail_box">
-                 <h6> Save Result </h6>
-                 <p>
-                   You can save You can save You can save You can save You can save You can save You can save
-                   You can save You can save You can save You can save You can save You can save You can save
-                 </p>
-               </div>
-             </div>
-           </div>
-         </div>
-       </div>
-       <div class="col-md-4">
-         <img src="{{ url_for('static',filename='images/tool.png') }}" alt="" class="w-100">
-       </div>
-     </div>
-   </div>
- </section>
-{% endblock content %}
+{% endblock %}

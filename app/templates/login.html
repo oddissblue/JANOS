@@ -1,39 +1,11 @@
-{% extends "layout.html" %}
+{% extends 'layout.html' %}
+{% from '_forms.html' import field %}
 {% block content %}
-<!--============================================= Form - Login =================================================-->
-<section class="formpage_section">
-  <div class="form_container">
-    <form method="POST" action="">
-      {{ form.hidden_tag() }}
-      <legend class="text-center"> Login </legend>
-      {% if form.email.errors %}
-        {% for error in form.email.errors %}
-        <div>{{ form.email(class="input", placeholder="Email") }}</div>
-        <div><span style="color: red;">{{ error }}</span></div>
-        {% endfor %}
-      {% else %}
-        <div>{{ form.email(class="input", placeholder="Email") }}</div>
-      {% endif %}
-      {% if form.password.errors %}
-        {% for error in form.password.errors %}
-        <div>{{ form.password(class="input", placeholder="Password") }}</div>
-        <div><span style="color: red;">{{ error }}</span></div>
-        {% endfor %}
-      {% else %}
-        <div>{{ form.password(class="input", placeholder="Password") }}</div>
-      {% endif %}
-      <div class="form-check mt-4">
-        {{ form.remember(class="form-check-input") }}
-        <small>{{ form.remember.label(class="form-check-label") }}</small>
-      </div>
-      <div>{{ form.submit(class="button mb-2") }}</div>
-      <div class="text-center">
-        <small class="text-muted"><a class="ml-2" href="{{ url_for('reset_request') }}"> Forget Password? </a></small>
-      </div>
-      <div class="text-center">
-        <small class="text-muted"> You don't have an account? <a class="ml-2" href="{{ url_for('register')}}"> Register </a></small>
-      </div>
-    </form>
-  </div>
-</section>
-{% endblock content %}
+<section class="card narrow"><h1>Sign in</h1><p>Access your scanner and saved results.</p>
+<form method="post">{{ form.hidden_tag() }}
+{{ field(form.email, 'email') }}
+{{ field(form.password, 'current-password') }}
+<div class="checkbox">{{ form.remember() }}{{ form.remember.label }}</div>
+{{ form.submit(class="button") }}
+</form><p class="section"><a href="{{ url_for('main.reset_request') }}">Forgot password?</a></p></section>
+{% endblock %}

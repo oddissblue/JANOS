@@ -1,31 +1,8 @@
-{% extends "layout.html" %}
+{% extends 'layout.html' %}
 {% block content %}
-<!--============================================ scanner section ===================================================-->
-<section class="formpage_section">
-    <div class="scanner_container">
-        <div class="row justify-content-center">
-            <h1 style="color: #00bfff;"> Pneumonia Detector </h1>
-         </div>
-        <div class="row justify-content-center mt-5">
-            <img src="{{ url_for('uploaded_image', filename=name) }}" style="width: 400px;">
-        </div>
-        <div class="row justify-content-center mt-3">
-            <div><h5> {{name}} </h5></div>
-        </div>
-        <div class="row justify-content-center mt-5">
-            <div>
-                <h4>
-                    Scan Result: <span style="color: #00bfff;"> {{predection}} </span>
-                    &nbsp;&nbsp;
-                    Confidence: <span style="color: #00bfff;">{{probability}} % </span>
-                </h4>
-            </div>
-        </div>
-        <div class="row justify-content-center mt-4">
-            <form action="{{ url_for('scanner')}}">
-                <button type="submit" class="btn btn-primary-red">Confirm</button>
-            </form>
-        </div>
-    </div>
-</section>
-{% endblock content %}
+<section class="page-heading"><p class="eyebrow">Saved scan #{{ scan.id }}</p><h1>Scan result</h1><p>{{ scan.date_scanned.strftime('%Y-%m-%d %H:%M') }} UTC</p></section>
+<div class="grid two">
+  <section class="card">{% if scan.filename %}<img class="scan-image" src="{{ url_for('main.uploaded_image', filename=scan.filename) }}" alt="Your uploaded chest X-ray">{% else %}<p>The original image is not available for this older scan.</p>{% endif %}</section>
+  <section class="card"><h2>{{ scan.prediction }}</h2><p class="score">{{ '%.2f'|format(scan.probability) }}%</p><p>Model score for the predicted class. This is not a clinical diagnosis or validated probability.</p><div class="actions"><a class="button" href="{{ url_for('main.scanner') }}">Scan another image</a><a href="{{ url_for('main.account') }}">View history</a></div></section>
+</div>
+{% endblock %}

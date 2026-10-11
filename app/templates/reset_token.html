@@ -1,26 +1,10 @@
-{% extends "layout.html" %}
+{% extends 'layout.html' %}
+{% from '_forms.html' import field %}
 {% block content %}
-<!--============================================= Form - Request Reset Password =================================================-->
-<section class="formpage_section">
-  <div class="form_container">
-    <form method="POST" action="">
-        {% if form.password.errors %}
-        {% for error in form.password.errors %}
-        <div>{{ form.password(class="input", placeholder="Password") }}</div>
-        <div><span style="color: red;">{{ error }}</span></div>
-        {% endfor %}
-      {% else %}
-        <div>{{ form.password(class="input", placeholder="Password") }}</div>
-      {% endif %}
-      {% if form.confirm_password.errors %}
-      {% for error in form.confirm_password.errors %}
-      <div>{{ form.confirm_password(class="input", placeholder="Confirm Password") }}</div>
-      <div><span style="color: red;">{{ error }}</span></div>
-      {% endfor %}
-    {% else %}
-      <div>{{ form.confirm_password(class="input", placeholder="Confirm Password") }}</div>
-    {% endif %}
-    </form>
-  </div>
-</section>
-{% endblock content %}
+<section class="card narrow"><h1>Choose a new password</h1><p>Use a password between 12 and 128 characters.</p>
+<form method="post">{{ form.hidden_tag() }}
+{{ field(form.password, 'new-password') }}
+{{ field(form.confirm_password, 'new-password') }}
+{{ form.submit(class="button") }}
+</form></section>
+{% endblock %}

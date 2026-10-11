@@ -23,3 +23,7 @@ Thumbs.db
 dist/
 build/
 *.egg-info/
+
+.legacy-validation/
+backups/
+coverage.xml

@@ -1,21 +1,9 @@
-{% extends "layout.html" %}
+{% extends 'layout.html' %}
+{% from '_forms.html' import field %}
 {% block content %}
-<!--============================================= Form - Request Reset Password =================================================-->
-<section class="formpage_section">
-  <div class="form_container">
-    <form method="POST" action="">
-      {{ form.hidden_tag() }}
-      <legend class="text-center"> Reset Password </legend>
-      {% if form.email.errors %}
-        {% for error in form.email.errors %}
-        <div>{{ form.email(class="input", placeholder="Email") }}</div>
-        <div><span style="color: red;">{{ error }}</span></div>
-        {% endfor %}
-      {% else %}
-        <div>{{ form.email(class="input", placeholder="Email") }}</div>
-      {% endif %}
-      <div>{{ form.submit(class="button mb-2") }}</div>
-    </form>
-  </div>
-</section>
-{% endblock content %}
+<section class="card narrow"><h1>Reset your password</h1><p>Enter your account email. If it matches an account, you will receive a reset link.</p>
+<form method="post">{{ form.hidden_tag() }}
+{{ field(form.email, 'email') }}
+{{ form.submit(class="button") }}
+</form></section>
+{% endblock %}

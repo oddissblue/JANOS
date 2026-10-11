@@ -1,4 +1,6 @@
-from app import app
+"""Local development entry point. Docker uses Gunicorn instead."""
+
+from app import create_app
 
 if __name__ == "__main__":
-    app.run()
+    create_app().run()

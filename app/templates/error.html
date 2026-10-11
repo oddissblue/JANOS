@@ -1,0 +1,2 @@
+{% extends 'layout.html' %}
+{% block content %}<section class="card narrow"><p class="eyebrow">Error {{ code }}</p><h1>We could not complete that request.</h1><p>{{ message }}</p><a class="button" href="{{ url_for('main.about') }}">Return home</a></section>{% endblock %}

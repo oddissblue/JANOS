@@ -1,217 +1,291 @@
-# local imports
-from app import app, db, bcrybt, User, Scans, mail
-from app.forms import RegisterationForm, LoginForm, ContactForm, UpdateAccountForm, RequestResetForm, ResetPasswordForm
+"""Public pages, authentication, mail delivery, and private scan results."""
 
-# global imports
-from flask import flash, redirect, url_for, render_template, request, session, send_from_directory, abort
-from flask_login import login_user, current_user, logout_user, login_required
-from flask_mail import Message
-from werkzeug.utils import secure_filename
+import warnings
 from pathlib import Path
-from uuid import uuid4
+from smtplib import SMTPException
 from urllib.parse import urlsplit
+from uuid import uuid4
+
+from flask import (
+    Blueprint,
+    abort,
+    current_app,
+    flash,
+    redirect,
+    render_template,
+    request,
+    send_from_directory,
+    url_for,
+)
+from flask_login import current_user, login_required, login_user, logout_user
+from flask_mail import Message
 from PIL import Image, UnidentifiedImageError
-import os
+from sqlalchemy import func
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
-model = None
+from app.extensions import db, limiter, mail
+from app.forms import (
+    ContactForm,
+    LoginForm,
+    RegistrationForm,
+    RequestResetForm,
+    ResetPasswordForm,
+    UpdateAccountForm,
+)
+from app.inference import InferenceError, predict
+from app.models import Scans, User
 
-
-def model_pred(path):
-    """Load the legacy Keras model only when inference is requested."""
-    global model
-    import numpy as np
-    from tensorflow.keras.models import load_model
-    from tensorflow.keras.preprocessing.image import load_img, img_to_array
-
-    if model is None:
-        model = load_model(app.config['MODEL_PATH'], compile=False)
-    img = img_to_array(load_img(path, target_size=(224, 224))) / 255.0
-    probability = float(np.asarray(model.predict(np.expand_dims(img, axis=0), verbose=0)).item())
-    if probability > 0.5:
-        return 'Pneumonia', probability * 100
-    return 'Normal', (1 - probability) * 100
+main = Blueprint("main", __name__)
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg"}
 
 
-@app.route('/uploads/<filename>')
+def _deliver(message: Message) -> bool:
+    try:
+        mail.send(message)
+        return True
+    except (SMTPException, OSError, ValueError):
+        current_app.logger.exception("Email delivery failed")
+        return False
+
+
+def _save_account() -> bool:
+    try:
+        db.session.commit()
+        return True
+    except IntegrityError:
+        db.session.rollback()
+        flash("That username or email is already registered.", "danger")
+        return False
+
+
+@main.get("/")
+@main.get("/about")
+def about():
+    return render_template("about.html", title="About")
+
+
+@main.get("/help")
+def help_page():
+    return render_template("help.html", title="Help")
+
+
+@main.route("/scanner", methods=["GET", "POST"])
+@login_required
+@limiter.limit("10 per minute", methods=["POST"])
+def scanner():
+    if request.method == "GET":
+        return render_template("scanner.html", title="Scanner")
+    upload = request.files.get("imageFile")
+    if not upload or not upload.filename:
+        flash("Choose an image to scan.", "danger")
+        return redirect(url_for("main.scanner"))
+    extension = upload.filename.rsplit(".", 1)[-1].lower() if "." in upload.filename else ""
+    if extension not in ALLOWED_EXTENSIONS:
+        flash("Choose a PNG or JPEG image.", "danger")
+        return redirect(url_for("main.scanner"))
+    filename = f"{uuid4().hex}.{extension}"
+    path = Path(current_app.config["UPLOAD_FOLDER"]) / filename
+    try:
+        upload.save(path)
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", Image.DecompressionBombWarning)
+            with Image.open(path) as image:
+                if image.format not in {"PNG", "JPEG"}:
+                    raise ValueError("Image format does not match an accepted type.")
+                if (image.format == "PNG" and extension != "png") or (
+                    image.format == "JPEG" and extension not in {"jpg", "jpeg"}
+                ):
+                    raise ValueError("Image extension does not match its content.")
+                image.verify()
+        prediction, probability = predict(path)
+        scan = Scans(
+            prediction=prediction,
+            probability=round(probability, 2),
+            user_id=current_user.id,
+            filename=filename,
+        )
+        db.session.add(scan)
+        db.session.commit()
+    except (
+        UnidentifiedImageError,
+        ValueError,
+        Image.DecompressionBombError,
+        Image.DecompressionBombWarning,
+    ):
+        path.unlink(missing_ok=True)
+        flash("This file is not a supported, valid image.", "danger")
+        return redirect(url_for("main.scanner"))
+    except (InferenceError, SQLAlchemyError, OSError):
+        db.session.rollback()
+        path.unlink(missing_ok=True)
+        current_app.logger.exception("Scan failed")
+        flash("Scanning is temporarily unavailable. Please try again later.", "danger")
+        return redirect(url_for("main.scanner"))
+    flash("Scan saved to your account.", "success")
+    return redirect(url_for("main.scan_result", scan_id=scan.id))
+
+
+@main.get("/scans/<int:scan_id>")
+@login_required
+def scan_result(scan_id):
+    scan = db.session.scalar(
+        db.select(Scans).where(Scans.id == scan_id, Scans.user_id == current_user.id)
+    )
+    if scan is None:
+        abort(404)
+    return render_template("upload.html", scan=scan, title="Scan result")
+
+
+@main.get("/uploads/<filename>")
 @login_required
 def uploaded_image(filename):
-    if filename not in session.get('uploads', []):
+    scan = db.session.scalar(
+        db.select(Scans).where(Scans.filename == filename, Scans.user_id == current_user.id)
+    )
+    if scan is None:
         abort(404)
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+    return send_from_directory(current_app.config["UPLOAD_FOLDER"], filename)
 
 
-# checking the file type:
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-# scanner/upload page:
-@app.route("/")
-@app.route('/scanner', methods=['GET', 'POST'])
-@login_required
-def scanner():
-    # checks if post request was submitted
-    if request.method == 'POST':
-        # check if the post request has the file part
-        if 'imageFile' not in request.files:
-            flash(f'No file part', "danger")
-            return redirect(request.url)
-        # check if filename is an empty string
-        file = request.files['imageFile']
-        if file.filename == '':
-            flash(f'No selected file', "danger")
-            return redirect(request.url)
-        # if file is uploaded
-        if file and allowed_file(file.filename):
-            filename = f'{uuid4().hex}_{secure_filename(file.filename)}'
-            imgPath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(imgPath)
-            try:
-                with Image.open(imgPath) as image:
-                    image.verify()
-                predection, probability = model_pred(imgPath)
-            except (UnidentifiedImageError, OSError, ValueError, ImportError):
-                Path(imgPath).unlink(missing_ok=True)
-                flash('Unable to scan this image. Check the image and inference setup.', 'danger')
-                return redirect(url_for('scanner'))
-            session['uploads'] = (session.get('uploads', []) + [filename])[-10:]
-            # perfroming prediction and saving the results in the database
-            saved_scan = Scans(prediction=predection,probability=round(probability, 2),user_id=current_user.id)
-            db.session.add(saved_scan)
-            db.session.commit()
-            flash(f"Scan successful!", "success")
-            return render_template('upload.html', name=filename, predection=predection, probability=round(probability, 2), title="- Results")
-        else:
-            flash(f"Please select an image file!", "danger")
-            return redirect(url_for('scanner'))
-    return render_template("scanner.html", title="- Scanner")
-
-# about page:
-@app.route("/about")
-def about():
-    return render_template("about.html", title='- About')
-
-# help page:
-@app.route("/help")
-def help():
-    return render_template("help.html", title='- Help')
-
-# contact page:
-@app.route("/contact", methods=['GET', 'POST'])
+@main.route("/contact", methods=["GET", "POST"])
+@limiter.limit("5 per minute", methods=["POST"])
 def contact():
     form = ContactForm()
     if form.validate_on_submit():
-        if not app.config.get('CONTACT_EMAIL') or not app.config.get('MAIL_DEFAULT_SENDER'):
-            flash('Contact delivery is not configured. Please try again later.', 'warning')
-            return redirect(url_for('contact'))
-        msg = Message(form.report_title.data, recipients=[app.config['CONTACT_EMAIL']],
-                      reply_to=form.email.data, body=form.report_message.data)
-        mail.send(msg)
-        flash('Report sent successfully!', 'success')
-        return redirect(url_for('about'))
-    return render_template("contact.html", title='- Contact Us', form = form)
+        if not current_app.config.get("CONTACT_EMAIL") or not current_app.config.get(
+            "MAIL_DEFAULT_SENDER"
+        ):
+            flash("Contact delivery is not configured. Please try again later.", "warning")
+        else:
+            message = Message(
+                form.report_title.data,
+                recipients=[current_app.config["CONTACT_EMAIL"]],
+                reply_to=form.email.data,
+                body=form.report_message.data,
+            )
+            if _deliver(message):
+                flash("Your message has been sent.", "success")
+                return redirect(url_for("main.contact"))
+            flash("Your message could not be sent. Please try again later.", "danger")
+    return render_template("contact.html", title="Contact", form=form)
 
-# register page:
-@app.route("/register", methods=['GET', 'POST'])
+
+@main.route("/register", methods=["GET", "POST"])
+@limiter.limit("5 per minute", methods=["POST"])
 def register():
     if current_user.is_authenticated:
-        return redirect(url_for('scanner'))
-    form = RegisterationForm()
+        return redirect(url_for("main.scanner"))
+    form = RegistrationForm()
     if form.validate_on_submit():
-        hashed_password = bcrybt.generate_password_hash(form.password.data).decode('utf-8')
-        user = User(username=form.username.data, email = form.email.data, password = hashed_password)
+        user = User(username=form.username.data, email=form.email.data)
+        user.set_password(form.password.data)
         db.session.add(user)
-        db.session.commit()
-        flash(f'Your account has been created! You are now able to login', 'success')
-        return redirect(url_for('login'))
-    return render_template("register.html", title='- Register', form = form)
+        if _save_account():
+            flash("Your account is ready. You can now sign in.", "success")
+            return redirect(url_for("main.login"))
+    return render_template("register.html", title="Register", form=form)
 
-# login page:
-@app.route("/login", methods=['GET', 'POST'])
+
+@main.route("/login", methods=["GET", "POST"])
+@limiter.limit("10 per minute", methods=["POST"])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('scanner'))
+        return redirect(url_for("main.scanner"))
     form = LoginForm()
     if form.validate_on_submit():
-            user = User.query.filter_by(email=form.email.data).first()
-            if user and bcrybt.check_password_hash(user.password, form.password.data):
-                login_user(user, remember=form.remember.data)
-                next_page = request.args.get('next')
-                flash(f"You have been logged in!", "success")
-                if next_page and next_page.startswith('/') and not next_page.startswith('//') and not urlsplit(next_page).netloc and not urlsplit(next_page).scheme and '\\' not in next_page:
-                    return redirect(next_page)
-                return redirect(url_for('scanner'))
-            else:
-                flash(f"Login Unseccessful. Please check email and password", "danger")
-    return render_template("login.html", title='- Login', form = form)
+        user = db.session.scalar(db.select(User).where(func.lower(User.email) == form.email.data))
+        if user and user.check_password(form.password.data):
+            if user.password.startswith(("$2a$", "$2b$", "$2y$")):
+                user.set_password(form.password.data)
+                db.session.commit()
+            login_user(user, remember=form.remember.data)
+            flash("You are signed in.", "success")
+            next_page = request.args.get("next", "")
+            parsed = urlsplit(next_page)
+            if (
+                next_page.startswith("/")
+                and not next_page.startswith("//")
+                and not parsed.netloc
+                and not parsed.scheme
+                and chr(92) not in next_page
+            ):
+                return redirect(next_page)
+            return redirect(url_for("main.scanner"))
+        flash("Sign-in failed. Check your email and password.", "danger")
+    return render_template("login.html", title="Sign in", form=form)
 
-# logout page:
-@app.route("/logout")
+
+@main.post("/logout")
+@login_required
 def logout():
     logout_user()
-    session.pop('uploads', None)
-    flash(f"You have been logged out!", "danger")
-    return redirect(url_for("scanner"))
+    flash("You are signed out.", "info")
+    return redirect(url_for("main.login"))
 
-# account page:
-@app.route("/account")
+
+@main.get("/account")
 @login_required
 def account():
-    history_scans = Scans.query.filter_by(user_id=current_user.id).all()
-    return render_template("account.html", history_scans=history_scans, title='- Account')
+    page = request.args.get("page", 1, type=int)
+    history = db.paginate(
+        db.select(Scans)
+        .where(Scans.user_id == current_user.id)
+        .order_by(Scans.date_scanned.desc(), Scans.id.desc()),
+        page=page,
+        per_page=20,
+        error_out=False,
+    )
+    return render_template("account.html", history=history, title="Account")
 
-# update account page:
-@app.route("/account/update", methods=['GET', 'POST'])
+
+@main.route("/account/update", methods=["GET", "POST"])
 @login_required
 def update_account():
-    form = UpdateAccountForm()
+    form = UpdateAccountForm(obj=current_user)
     if form.validate_on_submit():
         current_user.username = form.username.data
         current_user.email = form.email.data
-        db.session.commit()
-        flash(f'Your account has been updated!', 'success')
-        return redirect(url_for('account'))
-    return render_template("update_account.html", title='- Update Account', form = form)
+        if _save_account():
+            flash("Your account has been updated.", "success")
+            return redirect(url_for("main.account"))
+    return render_template("update_account.html", title="Update account", form=form)
 
-# requesting reset token page (email):
-def send_reset_email(user):
-    token = user.get_reset_token()
-    msg = Message('Password Restet Request', recipients=[user.email])
-    msg.body = f''' To reset your password, visit the following link:
-{url_for('reset_token', token=token, _external=True)}
-    
-If you did not make this request then simply ignore this email and no changes will be made
-'''
-    mail.send(msg)
-# reset password page
-@app.route("/reset_password", methods=['GET', 'POST'])
+
+@main.route("/reset_password", methods=["GET", "POST"])
+@limiter.limit("5 per minute", methods=["POST"])
 def reset_request():
     if current_user.is_authenticated:
-        return redirect(url_for('scanner'))
+        return redirect(url_for("main.scanner"))
     form = RequestResetForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
-        if not app.config.get('MAIL_DEFAULT_SENDER'):
-            flash('Password reset email is not configured.', 'warning')
-            return redirect(url_for('reset_request'))
-        send_reset_email(user)
-        flash('An email has been sent with instructions to reset your password', 'info')
-        return redirect(url_for('login'))
-    return render_template("reset_request.html", title='- Reset Password', form=form)
-@app.route("/reset_password/<token>", methods=['GET', 'POST'])
+        user = db.session.scalar(db.select(User).where(func.lower(User.email) == form.email.data))
+        if user and current_app.config.get("MAIL_DEFAULT_SENDER"):
+            reset_url = current_app.config["PUBLIC_BASE_URL"] + url_for(
+                "main.reset_token", token=user.get_reset_token()
+            )
+            _deliver(
+                Message(
+                    "JANOS password reset",
+                    recipients=[user.email],
+                    body=f"Reset your password within 30 minutes: {reset_url}\n\nIf you did not request this, ignore this email.",
+                )
+            )
+        flash("If an account matches that email, reset instructions will be sent.", "info")
+        return redirect(url_for("main.login"))
+    return render_template("reset_request.html", title="Reset password", form=form)
+
+
+@main.route("/reset_password/<token>", methods=["GET", "POST"])
+@limiter.limit("10 per minute", methods=["POST"])
 def reset_token(token):
-    if current_user.is_authenticated:
-        return redirect(url_for('scanner'))
     user = User.verify_reset_token(token)
     if user is None:
-        flash('Expired token', 'warning')
-        return redirect(url_for('reset_request'))
+        flash("This reset link is invalid or has expired.", "warning")
+        return redirect(url_for("main.reset_request"))
     form = ResetPasswordForm()
     if form.validate_on_submit():
-        hashed_password = bcrybt.generate_password_hash(form.password.data).decode('utf-8')
-        user.password = hashed_password
+        user.set_password(form.password.data)
         db.session.commit()
-        flash(f'Your password has been updated! You are now able to login', 'success')
-        return redirect(url_for('login'))
-    return render_template("reset_token.html", title='- Reset Password', form=form)
+        flash("Your password has been updated. Please sign in.", "success")
+        return redirect(url_for("main.login"))
+    return render_template("reset_token.html", title="Reset password", form=form)

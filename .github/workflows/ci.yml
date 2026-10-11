@@ -1,0 +1,62 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          lfs: true
+      - uses: astral-sh/setup-uv@v10
+        with:
+          version: '0.13.0'
+          enable-cache: true
+      - run: uv sync --locked --extra inference
+      - run: uv run --extra inference ruff check .
+      - run: uv run --extra inference ruff format --check .
+      - run: uv run --extra inference pytest --cov=app --cov-report=term-missing --cov-report=xml
+      - run: uv lock --check
+      - uses: actions/upload-artifact@v7
+        with:
+          name: coverage-${{ matrix.os }}
+          path: coverage.xml
+  docker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          lfs: true
+      - uses: astral-sh/setup-uv@v10
+        with:
+          version: '0.13.0'
+      - name: Generate local configuration
+        run: uv run --no-project --python 3.13 scripts/manage.py configure
+      - name: Validate Compose and start all services
+        run: |
+          docker compose config --quiet
+          docker compose up --build -d --wait --wait-timeout 300
+      - name: Run HTTP and mail integration test
+        run: uv run --no-project --python 3.13 scripts/smoke.py --mail-url http://localhost:8025
+      - name: Verify database migration metadata matches models
+        run: docker compose exec -T web flask --app app db check
+      - name: Container logs
+        if: always()
+        run: docker compose logs --no-color --tail 100
+      - name: Stop test stack
+        if: always()
+        run: docker compose down --volumes

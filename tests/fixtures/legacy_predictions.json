@@ -1,0 +1,56 @@
+{
+  "runtime": "TensorFlow 2.15.1 / Keras 2.15.0 / NumPy 1.26.4",
+  "model_sha256": "b289b174e17ce54c565d5f322e636ba564f869182f7eb1965d037cec137dd0fe",
+  "samples": [
+    {
+      "path": "app/static/sample test images/NORMAL/IM-0001-0001.jpeg",
+      "sha256": "f17a003185299f171440c2cb408c2e5bacea90376971ed81ecc9812465e209fb",
+      "pneumonia_score": 0.005698280408978462
+    },
+    {
+      "path": "app/static/sample test images/NORMAL/IM-0016-0001.jpeg",
+      "sha256": "696eea445b9d885c401f76432a1a57112176dde3f29092ce98cfd520e10848ee",
+      "pneumonia_score": 0.0030417500529438257
+    },
+    {
+      "path": "app/static/sample test images/NORMAL/IM-0019-0001.jpeg",
+      "sha256": "5b54ec4420fd3047aa6641c9f4905aafbfe99924adb7afdf3fb017568e37a38b",
+      "pneumonia_score": 0.005768343806266785
+    },
+    {
+      "path": "app/static/sample test images/NORMAL/IM-0033-0001.jpeg",
+      "sha256": "4d7f97dd0bf482641c39670ca503283d2d420c1c0d9265b246efe5dfb361091f",
+      "pneumonia_score": 0.029816005378961563
+    },
+    {
+      "path": "app/static/sample test images/NORMAL/NORMAL2-IM-0150-0001.jpeg",
+      "sha256": "b511e4611bc5a79219b2d8f0499ad35e2bcdfd00a1a78a614384b053a2cec218",
+      "pneumonia_score": 0.3240056335926056
+    },
+    {
+      "path": "app/static/sample test images/NORMAL/NORMAL2-IM-0213-0001.jpeg",
+      "sha256": "78fa246893459dafa780ffe14979af4fc8544eb187fe2849208d06a07874b6fe",
+      "pneumonia_score": 0.02441767230629921
+    },
+    {
+      "path": "app/static/sample test images/PNEUMONIA/person134_bacteria_642.jpeg",
+      "sha256": "8499a0b7bd0d57b3508c5bbb4d03b578111a6cd8cac62f74fbc6ddbc535d22b2",
+      "pneumonia_score": 0.9951871037483215
+    },
+    {
+      "path": "app/static/sample test images/PNEUMONIA/person146_bacteria_703.jpeg",
+      "sha256": "499d00ab891b5044cd2eb2c861594299a1f26cdab9c20f8e818405e8bac7e8c6",
+      "pneumonia_score": 0.9997619986534119
+    },
+    {
+      "path": "app/static/sample test images/PNEUMONIA/person147_bacteria_705.jpeg",
+      "sha256": "4d666b01acfbee97e9e56314ba557427f72e217d036cfe3ac43282bd0665dc51",
+      "pneumonia_score": 0.9999364614486694
+    },
+    {
+      "path": "app/static/sample test images/PNEUMONIA/person1661_virus_2872.jpeg",
+      "sha256": "514afd0fa610117fbfef0e6e5b81a4d73a24815827594119af684fb8d0b2f8e2",
+      "pneumonia_score": 0.9894442558288574
+    }
+  ]
+}

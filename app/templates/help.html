@@ -1,75 +1,11 @@
-{% extends "layout.html" %}
+{% extends 'layout.html' %}
 {% block content %}
-<!--================================================ form =========================================================-->
-<section class="homepage_section">
-  <div style="display: flex; justify-content: center; align-items: center;">
-    <img style="margin: 3rem 0px 0px 0px; width: 400px;" src="{{ url_for('static', filename='images/faq-icon.webp') }}" />
-  </div>
-  <div class="faq-section">
-    <div class="questions">
-      <div class="accordions">
-        <div class="accordion-item">
-          <div class="accordion-title" data-tab="item1">
-            <h3> What is JANOS.Ai ? &nbsp; <i class="fa fa-chevron-down"></i> </h3>
-          </div>
-          <div class="accordion-content" id="item1">
-            <p>
-              JANOS.Ai is a medical cardiograph diagnoses system that uses deep learning technology to detect and classify
-              diffirent diseases from a veriaty of x-ray images.
-            </p>
-          </div>
-        </div>
-        <div class="accordion-item">
-          <div class="accordion-title" data-tab="item2">
-            <h3> What is JANOS.Ai ? &nbsp; <i class="fa fa-chevron-down"></i> </h3>
-          </div>
-          <div class="accordion-content" id="item2">
-            <p>
-              JANOS.Ai is a medical cardiograph diagnoses system that uses deep learning technology to detect and classify
-              diffirent diseases from a veriaty of x-ray images.
-            </p>
-          </div>
-        </div>
-        <div class="accordion-item">
-          <div class="accordion-title" data-tab="item3">
-            <h3> What is JANOS.Ai ? &nbsp; <i class="fa fa-chevron-down"></i> </h3>
-          </div>
-          <div class="accordion-content" id="item3">
-            <p>
-              JANOS.Ai is a medical cardiograph diagnoses system that uses deep learning technology to detect and classify
-              diffirent diseases from a veriaty of x-ray images.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-<script type="text/javascript">
-  $(document).ready(function () {
-  $(".accordion-title").click(function (e) {
-  var accordionitem = $(this).attr("data-tab");
-  $("#" + accordionitem)
-    .slideToggle()
-    .parent()
-    .siblings()
-    .find(".accordion-content")
-    .slideUp();
-
-  $(this).toggleClass("active-title");
-  $("#" + accordionitem)
-    .parent()
-    .siblings()
-    .find(".accordion-title")
-    .removeClass("active-title");
-
-  $("i.fa-chevron-down", this).toggleClass("chevron-top");
-  $("#" + accordionitem)
-    .parent()
-    .siblings()
-    .find(".accordion-title i.fa-chevron-down")
-    .removeClass("chevron-top");
-  });
-});
-</script>
-{% endblock content %}
+<section class="page-heading"><p class="eyebrow">Using JANOS</p><h1>Help and frequently asked questions</h1><p>Learn what the scanner accepts and how to interpret its output.</p></section>
+<div class="card">
+  <details open><summary>How do I scan an image?</summary><p>Create an account, sign in, and open the scanner. Choose a PNG or JPEG image up to 10 MiB, then select Run scan. Your result will also appear in your account history.</p></details>
+  <details><summary>What does the score mean?</summary><p>The model produces a binary score. Values above 0.5 select pneumonia; other values select normal. The displayed class score is not a calibrated likelihood of disease.</p></details>
+  <details><summary>Who can access my uploaded images?</summary><p>The application checks account ownership before serving an uploaded image. Administrators with access to the database or storage can still access data. Use sample or appropriately de-identified images.</p></details>
+  <details><summary>Why did a scan fail?</summary><p>Check the file size and format. If a valid image still fails, the model or server may be unavailable. Contact the operator; technical setup instructions are in the repository README.</p></details>
+  <details><summary>How do I reset my password?</summary><p>Select Forgot password on the sign-in page. Reset links expire after 30 minutes and stop working after the password changes. Email delivery must be configured by the operator.</p></details>
+</div>
+{% endblock %}

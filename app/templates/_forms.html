@@ -1,0 +1,13 @@
+{% macro field(input, autocomplete='off') -%}
+<div class="field">
+  {{ input.label }}
+  {% if input.type == 'TextAreaField' %}
+    {{ input(rows=6, aria_invalid='true' if input.errors else 'false', aria_describedby=input.id ~ '-errors') }}
+  {% else %}
+    {{ input(autocomplete=autocomplete, aria_invalid='true' if input.errors else 'false', aria_describedby=input.id ~ '-errors') }}
+  {% endif %}
+  <div id="{{ input.id }}-errors">
+    {% for error in input.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+  </div>
+</div>
+{%- endmacro %}

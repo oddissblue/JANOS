@@ -1,29 +1,10 @@
-{% extends "layout.html" %}
+{% extends 'layout.html' %}
+{% from '_forms.html' import field %}
 {% block content %}
-<!--============================================= Form - Register ================================================-->
-<section class="formpage_section">
-  <div class="form_container">
-    <form method="POST" action="">
-      {{ form.hidden_tag() }}
-      <legend class="text-center"> Update Account </legend>
-      {% if form.username.errors %}
-        {% for error in form.username.errors %}
-          <div>{{ form.username(class="input", placeholder="Username") }}</div>
-          <div><span style="color: red;">{{ error }}</span></div>
-        {% endfor %}
-      {% else %}
-        <div>{{ form.username(class="input", placeholder="Username") }}</div>
-      {% endif %}
-      {% if form.email.errors %}
-        {% for error in form.email.errors %}
-        <div>{{ form.email(class="input", placeholder="Email") }}</div>
-        <div><span style="color: red;">{{ error }}</span></div>
-        {% endfor %}
-      {% else %}
-        <div>{{ form.email(class="input", placeholder="Email") }}</div>
-      {% endif %}
-      <div>{{ form.submit(class="button mb-2") }}</div>
-    </form>
-  </div>
-</section>
-{% endblock content %}
+<section class="card narrow"><h1>Edit account details</h1><p>Update your username or email address.</p>
+<form method="post">{{ form.hidden_tag() }}
+{{ field(form.username, 'username') }}
+{{ field(form.email, 'email') }}
+{{ form.submit(class="button") }}
+</form></section>
+{% endblock %}

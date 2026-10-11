@@ -1,74 +1,95 @@
-# global imports:
-from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField
-from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
+"""Validated forms for account and mail workflows."""
+
 from flask_login import current_user
+from flask_wtf import FlaskForm
+from sqlalchemy import func
+from wtforms import BooleanField, PasswordField, StringField, SubmitField, TextAreaField
+from wtforms.validators import DataRequired, Email, EqualTo, Length, ValidationError
 
-# local imports:
-from app import User
+from app.extensions import db
+from app.models import User
 
-# register form:
-class RegisterationForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired(), Length(min=3, max=20)])
-    email = StringField('Email', validators=[DataRequired(), Email()])
-    password = PasswordField('Password', validators=[DataRequired()])
-    confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
-    submit = SubmitField('Register')
-    # username & database validation:
-    def validate_username(self, username):
-        user = User.query.filter_by(username=username.data).first()
-        if user:
-            raise ValidationError('Username already exists!')
-    # email & database validation:
-    def validate_email(self, email):
-        user = User.query.filter_by(email=email.data).first()
-        if user:
-            raise ValidationError('An account with this email already exists!')
 
-# login form:
+def normalize_email(value):
+    return value.strip().lower() if value else value
+
+
+def strip_text(value):
+    return value.strip() if value else value
+
+
+class AccountFields(FlaskForm):
+    username = StringField(
+        "Username", filters=[strip_text], validators=[DataRequired(), Length(min=3, max=20)]
+    )
+    email = StringField(
+        "Email", filters=[normalize_email], validators=[DataRequired(), Email(), Length(max=120)]
+    )
+
+    def _validate_unique(self, column, value, message):
+        query = db.select(User).where(column == value)
+        if current_user.is_authenticated:
+            query = query.where(User.id != current_user.id)
+        if db.session.scalar(query):
+            raise ValidationError(message)
+
+    def validate_username(self, field):
+        self._validate_unique(User.username, field.data, "This username is already registered.")
+
+    def validate_email(self, field):
+        self._validate_unique(
+            func.lower(User.email), field.data, "This email is already registered."
+        )
+
+
+class RegistrationForm(AccountFields):
+    password = PasswordField("Password", validators=[DataRequired(), Length(min=12, max=128)])
+    confirm_password = PasswordField(
+        "Confirm password", validators=[DataRequired(), EqualTo("password")]
+    )
+    submit = SubmitField("Create account")
+
+
 class LoginForm(FlaskForm):
-    email = StringField('Email', validators=[DataRequired(), Email()])
-    password = PasswordField('Password', validators=[DataRequired()])
-    remember = BooleanField('Remember Me')
-    submit = SubmitField('Login')
+    email = StringField(
+        "Email", filters=[normalize_email], validators=[DataRequired(), Email(), Length(max=120)]
+    )
+    password = PasswordField("Password", validators=[DataRequired(), Length(max=128)])
+    remember = BooleanField("Remember me")
+    submit = SubmitField("Sign in")
 
-# contact form:
+
 class ContactForm(FlaskForm):
-    email = StringField('Email', validators=[DataRequired(), Email()])
-    report_title = StringField('Title', validators=[DataRequired()])
-    report_message = TextAreaField('Message', validators=[DataRequired()])
-    submit = SubmitField('Send')
-    
-# update account form:
-class UpdateAccountForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired(), Length(min=3, max=20)])
-    email = StringField('Email', validators=[DataRequired(), Email()])
-    submit = SubmitField('Update')
-    # username & database validation:
-    def validate_username(self, username):
-        if username.data!= current_user.username:
-            user = User.query.filter_by(username=username.data).first()
-            if user:
-                raise ValidationError('Username already exists!')
-    # email & database validation:
-    def validate_email(self, email):
-        if email.data!= current_user.email:
-            user = User.query.filter_by(email=email.data).first()
-            if user:
-                raise ValidationError('An account with this email already exists!')
-            
-# request reset token form:
+    email = StringField(
+        "Email", filters=[normalize_email], validators=[DataRequired(), Email(), Length(max=120)]
+    )
+    report_title = StringField(
+        "Subject", filters=[strip_text], validators=[DataRequired(), Length(max=150)]
+    )
+    report_message = TextAreaField(
+        "Message", filters=[strip_text], validators=[DataRequired(), Length(max=5000)]
+    )
+    submit = SubmitField("Send message")
+
+    def validate_report_title(self, field):
+        if "\r" in field.data or "\n" in field.data:
+            raise ValidationError("Use a single line for the subject.")
+
+
+class UpdateAccountForm(AccountFields):
+    submit = SubmitField("Save changes")
+
+
 class RequestResetForm(FlaskForm):
-    email = StringField('Email', validators=[DataRequired(), Email()])
-    submit = SubmitField('Request Password Reset')
-    # email & database validation:
-    def validate_email(self, email):
-        user = User.query.filter_by(email=email.data).first()
-        if user is None:
-            raise ValidationError('There is no account with that email. You must register first.')
-        
-# password reset form:  
+    email = StringField(
+        "Email", filters=[normalize_email], validators=[DataRequired(), Email(), Length(max=120)]
+    )
+    submit = SubmitField("Send reset instructions")
+
+
 class ResetPasswordForm(FlaskForm):
-    password = PasswordField('Password', validators=[DataRequired()])
-    confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
-    submit = SubmitField('Reset Password')
+    password = PasswordField("New password", validators=[DataRequired(), Length(min=12, max=128)])
+    confirm_password = PasswordField(
+        "Confirm password", validators=[DataRequired(), EqualTo("password")]
+    )
+    submit = SubmitField("Reset password")
