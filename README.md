@@ -70,7 +70,8 @@ Use `uv sync --locked` for web-only development; real scanning requires the infe
 extra and the model. Keep `--extra inference` on `uv run` when testing inference,
 because uv otherwise syncs away optional dependencies.
 
-Native Windows uses CPU inference. Python 3.13 is the newest minor supported by
+Native Windows uses CPU inference; Linux installs the CPU-only TensorFlow wheel.
+Python 3.13 is the newest minor supported by
 this TensorFlow release. Use Linux/WSL2 and a separately configured CUDA environment
 for GPU experiments; the supplied Docker stack runs on CPU.
 
