@@ -1,0 +1,300 @@
+{% extends "layout.html" %}
+{% block content %}
+<!--============================================== slider section ====================================================-->
+<section class=" slider_section position-relative">
+  <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+    <ol class="carousel-indicators">
+      <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+      <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
+      <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
+    </ol>
+    <div class="carousel-inner">
+      <div class="carousel-item active">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-md-4 offset-md-2">
+              <div class="slider_detail-box">
+                <h1> Professional <span> X-ray image scanner </span> </h1>
+                <p>
+                  A state of the art medical cardiograph diagnoses system that uses deep learning technology
+                  to detect and classify diffirent diseases from a veriaty of x-ray images.
+                </p>
+                <div class="btn-box">
+                  <a href="{{ url_for('scanner') }}" class="btn-1"> Try now </a>
+                  <a href="{{ url_for('register') }}" class="btn-2"> Sign-in </a>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="slider_img-box">
+                <img src="{{ url_for('static',filename='images/xray.jpg') }}" alt="xray">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="carousel-item">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-md-4 offset-md-2">
+              <div class="slider_detail-box">
+                <h1> Professional <span> X-ray image scanner </span> </h1>
+                <p>
+                  A state of the art medical cardiograph diagnoses system that uses deep learning technology
+                  to detect and classify diffirent diseases from a veriaty of x-ray images.
+                </p>
+                <div class="btn-box">
+                  <a style="text-decoration: none;" href="{{ url_for('scanner') }}" class="btn-1"> Try now </a>
+                  <a style="text-decoration: none;" href="{{ url_for('register') }}" class="btn-2"> Sign-in </a>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="slider_img-box">
+                <img src="{{ url_for('static',filename='images/xray.jpg') }}" alt="">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="carousel-item">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-md-4 offset-md-2">
+               <div class="slider_detail-box">
+                 <h1> Professional <span> X-ray image scanner </span> </h1>
+                 <p>
+                   A state of the art medical cardiograph diagnoses system that uses deep learning technology
+                   to detect and classify diffirent diseases from a veriaty of x-ray images.
+                 </p>
+                 <div class="btn-box">
+                   <a style="text-decoration: none;" href="{{ url_for('scanner') }}" class="btn-1"> Try now </a>
+                   <a style="text-decoration: none;" href="{{ url_for('register') }}" class="btn-2"> Sign-in </a>
+                 </div>
+               </div>
+            </div>
+            <div class="col-md-6">
+              <div class="slider_img-box">
+                <img src="{{ url_for('static',filename='images/xray.jpg') }}" alt="">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!--============================================== About section ====================================================-->
+<section class="about_section layout_padding">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6">
+        <div class="img-box">
+          <img src="{{ url_for('static',filename='images/about.jpg') }}" alt="">
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="detail-box">
+          <h2 class="custom_heading"> About our <span> Scanner </span> </h2>
+          <p>
+            Our scanner provides the ability to interact with diffirent image classification models that detect
+            the exact disease from the provided X-ray images.
+          </p>
+          <div>
+            <a href="{{url_for('scanner')}}"> Try Now </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!--============================================== Service section ====================================================-->
+<section class="service_section layout_padding">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-6 offset-md-2">
+        <h2 class="custom_heading"> Our <span> Services </span> </h2>
+        <div class="container layout_padding2">
+          <div class="row">
+            <div class="col-md-4">
+              <div class="img_box">
+                <img src="{{ url_for('static',filename='images/upload_icon.svg') }}" alt="">
+              </div>
+              <div class="detail_box">
+                <h6> Upload Image </h6>
+                <p>
+                  You can upload You can upload You can upload You can upload You can upload You can upload
+                  You can upload You can upload You can upload You can upload You can upload You can upload
+                </p>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="img_box">
+                <img src="{{ url_for('static',filename='images/search_icon.png') }}" alt="">
+              </div>
+              <div class="detail_box">
+                <h6> Scan Image </h6>
+                <p>
+                  You can scan You can scan You can scan You can scan You can scan You can scan You can scan
+                  You can scan You can scan You can scan You can scan You can scan You can scan You can scan
+                </p>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="img_box">
+                <img src="{{ url_for('static',filename='images/save_icon.svg') }}" alt="">
+              </div>
+              <div class="detail_box">
+                <h6> Save Result </h6>
+                <p>
+                  You can save You can save You can save You can save You can save You can save You can save
+                  You can save You can save You can save You can save You can save You can save You can save
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <img src="{{ url_for('static',filename='images/tool.png') }}" alt="" class="w-100">
+      </div>
+    </div>
+  </div>
+</section>
+<!--============================================== Gallery section ====================================================-->
+<section class="gallery-section layout_padding">
+  <div class="container">
+    <h2> Our Vision </h2>
+  </div>
+  <div class="container ">
+    <div class="img_box box-3">
+      <img src="{{ url_for('static',filename='images/Vision.jfif') }}" alt="">
+    </div>
+    <div class="img_box box-4">
+      <img src="{{ url_for('static',filename='images/Vision.jfif') }}" alt="">
+    </div>
+    <div class="img_box box-5">
+      <img src="{{ url_for('static',filename='images/Vision.jfif') }}" alt="">
+    </div>
+  </div>
+</section>
+<!--============================================== Buy section ====================================================-->
+<section class="buy_section layout_padding">
+  <div class="container">
+    <h2> You Can Scan X-ray Images Anytime </h2>
+    <p>
+      If any problems occur, If any problems occur, If any problems occur, If any problems occur,
+      If any problems occur, If any problems occur, If any problems occur, If any problems occur.
+    </p>
+    <div class="d-flex justify-content-center">
+      <a href="{{ url_for('contact') }}"> Contact Us </a>
+    </div>
+  </div>
+</section>
+<<!--============================================== Client section ====================================================-->
+<section class="client_section layout_padding-bottom">
+  <div class="container">
+    <h2 class="custom_heading text-center"> Who is the team behind <span> Janos </span> ? </h2>
+    <p class="text-center">
+      JANOS.Ai originally was a senior project idea proposed by a group of students in the Collage of
+      Computer Science and Information Technology at Imamm Abdulrahman Bin Faisal University at Dammam, Saudi Arabia.
+    </p>
+    <div id="carouselExample2Indicators" class="carousel slide" data-ride="carousel">
+      <ol class="carousel-indicators">
+        <li data-target="#carouselExample2Indicators" data-slide-to="0" class="active"></li>
+        <li data-target="#carouselExample2Indicators" data-slide-to="1"></li>
+        <li data-target="#carouselExample2Indicators" data-slide-to="2"></li>
+        <li data-target="#carouselExample2Indicators" data-slide-to="3"></li>
+        <li data-target="#carouselExample2Indicators" data-slide-to="4"></li>
+      </ol>
+      <div class="carousel-inner">
+        <div class="carousel-item active">
+          <div class="layout_padding2 pl-100">
+            <div class="client_container ">
+              <div class="img_box">
+                <img src="{{ url_for('static',filename='images/user.webp') }}" alt="">
+              </div>
+              <div class="detail_box">
+                <h5> Jasser Alghamdi </h5>
+                <p>
+                  student word student word student word student word student word
+                  student word student word student word student word
+                  student word student word student word
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="carousel-item">
+          <div class="layout_padding2 pl-100">
+            <div class="client_container ">
+              <div class="img_box">
+                <img src="{{ url_for('static',filename='images/user.webp') }}" alt="">
+              </div>
+              <div class="detail_box">
+                <h5> Abdulaziz Alaumi </h5>
+                <p>
+                  student word student word student word student word student word
+                  student word student word student word student word
+                  student word student word student word
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="carousel-item">
+          <div class="layout_padding2 pl-100">
+            <div class="client_container ">
+              <div class="img_box">
+                <img src="{{ url_for('static',filename='images/user.webp') }}" alt="">
+              </div>
+              <div class="detail_box">
+                <h5> Noori Alsayed </h5>
+                <p>
+                  student word student word student word student word student word
+                  student word student word student word student word
+                  student word student word student word
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="carousel-item">
+          <div class="layout_padding2 pl-100">
+            <div class="client_container ">
+              <div class="img_box">
+                <img src="{{ url_for('static',filename='images/user.webp') }}" alt="">
+              </div>
+              <div class="detail_box">
+                <h5> Osama Alyami </h5>
+                <p>
+                  student word student word student word student word student word
+                  student word student word student word student word
+                  student word student word student word
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="carousel-item">
+          <div class="layout_padding2 pl-100">
+            <div class="client_container ">
+              <div class="img_box">
+                <img src="{{ url_for('static',filename='images/user.webp') }}" alt="">
+              </div>
+              <div class="detail_box">
+                <h5> Saif Aljaffari </h5>
+                <p>
+                  student word student word student word student word student word
+                  student word student word student word student word
+                  student word student word student word
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock content %}

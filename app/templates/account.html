@@ -1,0 +1,50 @@
+{% extends "layout.html" %}
+{% block content %}
+<!--============================================= Form - Account Info ================================================-->
+<section class="formpage_section">
+    <div class="container rounded bg-white mt-5 mb-5">
+        <div class="row">
+            <div class="col-md-6 border-right">
+                <div class="p-3 py-5">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="text-right">Account Information</h4>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-md-12">
+                            <label class="labels">Username</label>
+                            <h5>{{ current_user.username }}</h5>
+                        </div>
+                    </div> 
+                    <div class="row mt-3">
+                        <div class="col-md-12">
+                            <label class="labels">Email</label>
+                            <h5> {{ current_user.email }} </h5>
+                        </div>
+                    </div>
+                    <div class="mt-5 text-center">
+                        <a href="{{ url_for('update_account') }}"><button class="btn btn-primary profile-button" type="button"> Update </button></a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="p-3 py-5">
+                    <div class="d-flex justify-content-between align-items-center experience">
+                        <h4> Scanner History </h4>
+                    </div>
+                    <br>
+                    <table class="table">
+                        <tr><th>Result</th><th>Confidence</th><th>Date & Time</th></tr>
+                        {% for scans in history_scans %}
+                        <tr>
+                            <td><span style="color: #00bfff;">{{scans.prediction}}</span></td>
+                            <td><span style="color: #00bfff;">{{scans.probability}}</span></td>
+                            <td>{{scans.date_scanned}}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}

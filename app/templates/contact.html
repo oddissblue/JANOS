@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+{% block content %}
+<!--================================================ form =========================================================-->
+<section class="formpage_section">
+  <div class="form_container">
+    <form method="POST" action="">
+      {{ form.hidden_tag() }}
+      <legend class="text-center"> Contact Us </legend>
+      <div>{{ form.email(class="input", placeholder="Email") }}</div>
+      <div>{{ form.report_title(class="input", placeholder="Title") }}</div>
+      <div>{{ form.report_message(class="input", placeholder="Message") }}</div>
+      <div>{{ form.submit(class="button") }}</div>
+      <br/>
+      <div class="text-center">
+        <small class="text-muted">
+          If you have any questions visit<a class="ml-2" href="{{ url_for('help')}}">Help</a>
+        </small>
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock content %}

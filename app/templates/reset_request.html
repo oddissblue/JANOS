@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+{% block content %}
+<!--============================================= Form - Request Reset Password =================================================-->
+<section class="formpage_section">
+  <div class="form_container">
+    <form method="POST" action="">
+      {{ form.hidden_tag() }}
+      <legend class="text-center"> Reset Password </legend>
+      {% if form.email.errors %}
+        {% for error in form.email.errors %}
+        <div>{{ form.email(class="input", placeholder="Email") }}</div>
+        <div><span style="color: red;">{{ error }}</span></div>
+        {% endfor %}
+      {% else %}
+        <div>{{ form.email(class="input", placeholder="Email") }}</div>
+      {% endif %}
+      <div>{{ form.submit(class="button mb-2") }}</div>
+    </form>
+  </div>
+</section>
+{% endblock content %}

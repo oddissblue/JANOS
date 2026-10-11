@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+{% block content %}
+<!--============================================= Form - Request Reset Password =================================================-->
+<section class="formpage_section">
+  <div class="form_container">
+    <form method="POST" action="">
+        {% if form.password.errors %}
+        {% for error in form.password.errors %}
+        <div>{{ form.password(class="input", placeholder="Password") }}</div>
+        <div><span style="color: red;">{{ error }}</span></div>
+        {% endfor %}
+      {% else %}
+        <div>{{ form.password(class="input", placeholder="Password") }}</div>
+      {% endif %}
+      {% if form.confirm_password.errors %}
+      {% for error in form.confirm_password.errors %}
+      <div>{{ form.confirm_password(class="input", placeholder="Confirm Password") }}</div>
+      <div><span style="color: red;">{{ error }}</span></div>
+      {% endfor %}
+    {% else %}
+      <div>{{ form.confirm_password(class="input", placeholder="Confirm Password") }}</div>
+    {% endif %}
+    </form>
+  </div>
+</section>
+{% endblock content %}

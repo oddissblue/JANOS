@@ -1,0 +1,75 @@
+{% extends "layout.html" %}
+{% block content %}
+<!--================================================ form =========================================================-->
+<section class="homepage_section">
+  <div style="display: flex; justify-content: center; align-items: center;">
+    <img style="margin: 3rem 0px 0px 0px; width: 400px;" src="{{ url_for('static', filename='images/faq-icon.webp') }}" />
+  </div>
+  <div class="faq-section">
+    <div class="questions">
+      <div class="accordions">
+        <div class="accordion-item">
+          <div class="accordion-title" data-tab="item1">
+            <h3> What is JANOS.Ai ? &nbsp; <i class="fa fa-chevron-down"></i> </h3>
+          </div>
+          <div class="accordion-content" id="item1">
+            <p>
+              JANOS.Ai is a medical cardiograph diagnoses system that uses deep learning technology to detect and classify
+              diffirent diseases from a veriaty of x-ray images.
+            </p>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <div class="accordion-title" data-tab="item2">
+            <h3> What is JANOS.Ai ? &nbsp; <i class="fa fa-chevron-down"></i> </h3>
+          </div>
+          <div class="accordion-content" id="item2">
+            <p>
+              JANOS.Ai is a medical cardiograph diagnoses system that uses deep learning technology to detect and classify
+              diffirent diseases from a veriaty of x-ray images.
+            </p>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <div class="accordion-title" data-tab="item3">
+            <h3> What is JANOS.Ai ? &nbsp; <i class="fa fa-chevron-down"></i> </h3>
+          </div>
+          <div class="accordion-content" id="item3">
+            <p>
+              JANOS.Ai is a medical cardiograph diagnoses system that uses deep learning technology to detect and classify
+              diffirent diseases from a veriaty of x-ray images.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<script type="text/javascript">
+  $(document).ready(function () {
+  $(".accordion-title").click(function (e) {
+  var accordionitem = $(this).attr("data-tab");
+  $("#" + accordionitem)
+    .slideToggle()
+    .parent()
+    .siblings()
+    .find(".accordion-content")
+    .slideUp();
+
+  $(this).toggleClass("active-title");
+  $("#" + accordionitem)
+    .parent()
+    .siblings()
+    .find(".accordion-title")
+    .removeClass("active-title");
+
+  $("i.fa-chevron-down", this).toggleClass("chevron-top");
+  $("#" + accordionitem)
+    .parent()
+    .siblings()
+    .find(".accordion-title i.fa-chevron-down")
+    .removeClass("chevron-top");
+  });
+});
+</script>
+{% endblock content %}
