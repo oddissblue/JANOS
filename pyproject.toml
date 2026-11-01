@@ -15,8 +15,8 @@ dependencies = [
     "flask-migrate>=4.1.0",
     "email-validator>=2.3.0",
     "itsdangerous>=2.2.0",
-    "pillow>=12.3.0",
-    "sqlalchemy>=2.1.4",
+    "pillow>=13.0.0",
+    "sqlalchemy>=2.1.6",
     "psycopg[binary]>=3.3.6",
     "python-dotenv>=1.2.4",
     "waitress>=3.0.2",
@@ -33,7 +33,7 @@ inference = [
 ]
 
 [dependency-groups]
-dev = ["pytest>=9.1.1", "pytest-cov>=7.1.0", "ruff>=0.17.0", "pip-audit>=2.10.1", "pyyaml"]
+dev = ["pytest>=9.2.0", "pytest-cov>=7.1.0", "ruff>=0.17.3", "pip-audit>=2.10.1", "pyyaml"]
 
 [tool.uv]
 package = false

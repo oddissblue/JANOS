@@ -5,7 +5,7 @@ absl-py==2.5.1
     #   keras
     #   tensorflow
     #   tensorflow-cpu
-alembic==1.20.0
+alembic==1.20.1
     # via flask-migrate
 astunparse==1.6.3
     # via
@@ -17,7 +17,7 @@ blinker==1.9.0
     # via
     #   flask
     #   flask-mail
-certifi==2026.7.22
+certifi==2026.10.23
     # via requests
 charset-normalizer==3.5.2
     # via requests
@@ -64,7 +64,7 @@ google-pasta==0.2.0
     # via
     #   tensorflow
     #   tensorflow-cpu
-grpcio==1.84.0
+grpcio==1.85.0
     # via
     #   tensorflow
     #   tensorflow-cpu
@@ -141,7 +141,7 @@ packaging==26.3
     #   tensorflow
     #   tensorflow-cpu
     #   wheel
-pillow==12.3.0
+pillow==13.0.0
     # via janos
 protobuf==7.36.2
     # via
@@ -155,7 +155,7 @@ pygments==2.21.0
     # via rich
 python-dotenv==1.2.4
     # via janos
-redis==7.4.1
+redis==8.1.0
     # via limits
 requests==2.34.2
     # via
@@ -163,7 +163,7 @@ requests==2.34.2
     #   tensorflow-cpu
 rich==15.0.0
     # via keras
-setuptools==84.0.0
+setuptools==84.2.1
     # via
     #   tensorflow
     #   tensorflow-cpu
@@ -173,7 +173,7 @@ six==1.17.0
     #   google-pasta
     #   tensorflow
     #   tensorflow-cpu
-sqlalchemy==2.1.4
+sqlalchemy==2.1.6
     # via
     #   alembic
     #   flask-sqlalchemy
@@ -196,7 +196,7 @@ typing-extensions==4.16.0
     #   sqlalchemy
     #   tensorflow
     #   tensorflow-cpu
-tzdata==2026.5 ; sys_platform == 'win32'
+tzdata==2026.6 ; sys_platform == 'win32'
     # via psycopg
 urllib3==2.8.0
     # via requests
@@ -208,10 +208,10 @@ werkzeug==3.1.9
     #   flask-login
 wheel==0.48.0
     # via astunparse
-wrapt==2.5.0
+wrapt==2.5.1
     # via
     #   deprecated
     #   tensorflow
     #   tensorflow-cpu
-wtforms==3.2.2
+wtforms==3.3.1
     # via flask-wtf
